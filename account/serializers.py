@@ -11,7 +11,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model=User
-        fields = ['username', 'email', 'first_name', 'last_name', 'password', 'password_confirm']
+        fields=['username', 'email', 'first_name', 'last_name', 'password', 'password_confirm']
 
     def validate(self, attrs):
         password_confirm = attrs.pop('password_confirm')
@@ -26,4 +26,44 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
+
+class UserListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'first_name', 'last_name')
+
+
+class LoginSerializer(serializers.Serializer):
+    username = serializers.CharField()
+    password = serializers.CharField()
+
+    def validate(self, data):
+        username = data.get('username')
+        password = data.get('password')
+        request = self.context.get('request')
+
+        if username and password:
+            user = authenticate(
+                username=username,
+                password=password,
+                request=request,
+            )
+            if not user:
+                raise serializers.ValidationError(
+                    'Неправильный username или password!'
+                )
+        else:
+            raise serializers.ValidationError(
+                'Вы забыли ввести username или password'
+            )
+        data['user'] = user
+        return data
+    
+    def validate_username(self, username):
+        if not User.objects.filter(username=username).exists():
+            raise serializers.ValidationError(
+                'Пользователь с таким username не найден'
+            )
+        return username
     
