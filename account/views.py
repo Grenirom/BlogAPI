@@ -15,7 +15,7 @@ class UserRegistration(APIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         return Response('Account is created', status=201)
-    
+
 
 class UserListView(generics.ListAPIView):
     queryset = User.objects.all()
