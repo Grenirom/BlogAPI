@@ -12,6 +12,7 @@ from .serializers import CommentSerializer
 class CommentViewSet(ModelViewSet):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
+    
 
     @action(detail=False, methods=['GET'])
     def get_user_commnets(self, request):
